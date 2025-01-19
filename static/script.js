@@ -1,13 +1,16 @@
 $(document).ready(function() {
-    $('#addNote').click(function() {
-        addNote();
-    });
+    let selectedNote = null;
+    let deletedWords = [];
 
     $('#noteInput').keypress(function(event) {
         if (event.which == 13) {  // Enter key has keyCode = 13
-            event.preventDefault();  // Prevent the default action to avoid form submission
+            event.preventDefault();
             addNote();
         }
+    });
+
+    $('#addNote').click(function() {
+        addNote();
     });
 
     function addNote() {
@@ -33,24 +36,47 @@ $(document).ready(function() {
     }
 
     $('#notesList').on('click', 'li', function() {
-        $(this).fadeOut(500, function() {
-            $(this).hide();
-            checkHidden();
-        });
-    });
-
-    $('#showNotes').click(function() {
-        $('li:hidden').fadeIn(500);
-        $(this).hide(); // Hide the 'Show Notes' button after showing all notes
-    });
-
-    function checkHidden() {
-        if ($('li:hidden').length > 0) {
-            $('#showNotes').show();
-        } else {
-            $('#showNotes').hide();
+        if (selectedNote) {
+            selectedNote.removeClass('selected');
         }
-    }
+        selectedNote = $(this).addClass('selected');
+        $('.sidebar').show();
+    });
+
+    $('.sidebar button').click(function() {
+        if (!selectedNote) return;
+
+        let action = $(this).attr('id').replace('Note', '').toLowerCase();
+
+        if (action === 'erase') {
+            let words = selectedNote.text().split(' ');
+            deletedWords.push(words.pop());
+            selectedNote.text(words.join(' ') + ' ');
+            $('#showHiddenWords').show();
+        } else {
+            selectedNote.toggleClass(action);
+        }
+    });
+
+    $('#showHiddenWords').click(function() {
+        if (!selectedNote || deletedWords.length === 0) return;
+
+        let hiddenWord = deletedWords.pop();
+        let currentText = selectedNote.text();
+        selectedNote.text(currentText + hiddenWord);
+        
+        if (deletedWords.length === 0) {
+            $(this).hide();
+        }
+    });
+
+    $(document).click(function(event) {
+        if (!$(event.target).closest('.content-area').length) {
+            if (selectedNote) {
+                selectedNote.removeClass('selected');
+                selectedNote = null;
+                $('.sidebar').hide();
+            }
+        }
+    });
 });
-
-

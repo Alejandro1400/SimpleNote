@@ -1,28 +1,99 @@
 body {
-    font-family: Arial, sans-serif;
-    margin: 40px;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    background: #f4f4f4;
 }
 
-input[type="text"], button {
+header {
+    background-color: #4CAF50;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    font-size: 24px;
+}
+
+.note-entry {
+    background-color: #f8f8f8;
+    padding: 20px;
+    text-align: center;
+    border-bottom: 2px solid #ccc;
+}
+
+.note-entry button {
     padding: 10px;
-    margin: 10px;
-    font-size: 16px;
+    margin-left: 10px;
+    background: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
 }
 
-ul {
-    list-style-type: none;
+.note-entry button#showHiddenWords {
+    background-color: #FF5722;
+}
+
+.content-area {
+    display: flex;
+    flex: 1;
+}
+
+.notes-display {
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.notes-display ul {
+    list-style: none;
     padding: 0;
 }
 
-li {
+.notes-display li {
+    background: white;
+    padding: 10px;
     margin-top: 5px;
-    font-size: 18px;
-    padding: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    cursor: pointer;
+    word-spacing: 5px;
 }
 
-.important {
-    background-color: yellow;
+li.hidden {
+    text-decoration: line-through;
+    color: #ccc;
+}
+
+.sidebar {
+    width: 120px;
+    background-color: #ffffff;
+    padding: 10px;
+    text-align: center;
+    border-left: 2px solid #ccc;
+}
+
+.sidebar button {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    cursor: pointer;
+    background: #4CAF50;
+    color: white;
+    border: none;
+}
+
+.bold {
     font-weight: bold;
-    color: red;
 }
 
+.italic {
+    font-style: italic;
+}
+
+.highlight {
+    background-color: yellow;
+}
+
+.selected {
+    border: 2px solid blue;
+}

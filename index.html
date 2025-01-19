@@ -8,12 +8,27 @@
     <script src="/static/script.js"></script>
 </head>
 <body>
-    <h1>SimpleNote</h1>
-    <input type="text" id="noteInput" placeholder="Enter a note">
-    <button id="addNote">Add Note</button>
-    <button id="showNotes" style="display:none;">Show Hidden Notes</button>
-    <ul id="notesList">
-    </ul>
+    <header>
+        <h1>SimpleNote</h1>
+    </header>
+    <div class="note-entry">
+        <input type="text" id="noteInput" placeholder="Enter a note">
+        <button id="addNote">Add Note</button>
+        <button id="showHiddenWords" style="display: none;">Show Hidden Words</button>
+    </div>
+    <div class="content-area">
+        <div class="notes-display">
+            <ul id="notesList">
+            </ul>
+        </div>
+        <div class="sidebar" style="display: none;">
+            <button id="boldNote">Bold</button>
+            <button id="italicNote">Cursive</button>
+            <button id="highlightNote">Highlight</button>
+            <button id="eraseNote">Erase</button>
+        </div>
+    </div>
 </body>
 </html>
+
 
