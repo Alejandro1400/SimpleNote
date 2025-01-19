@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 40px;
+}
+
+input[type="text"], button {
+    padding: 10px;
+    margin: 10px;
+    font-size: 16px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin-top: 5px;
+    font-size: 18px;
+    padding: 5px;
+}
+
+.important {
+    background-color: yellow;
+    font-weight: bold;
+    color: red;
+}
+
