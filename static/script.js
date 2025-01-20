@@ -1,82 +1,129 @@
-$(document).ready(function() {
+$(document).ready(function () {
     let selectedNote = null;
-    let deletedWords = [];
 
-    $('#noteInput').keypress(function(event) {
-        if (event.which == 13) {  // Enter key has keyCode = 13
-            event.preventDefault();
-            addNote();
-        }
-    });
-
-    $('#addNote').click(function() {
+    $('#addNote').click(function () {
         addNote();
     });
 
     function addNote() {
-        var note = $('#noteInput').val();
+        const note = $('#noteInput').val();
         if (note) {
             $.ajax({
                 type: "POST",
                 url: "/add_note",
-                data: JSON.stringify({note: note}),
+                data: JSON.stringify({ note: note }),
                 contentType: "application/json",
                 dataType: "json",
-                success: function(data) {
-                    var newNote = $('<li>' + data.note + '</li>').hide();
+                success: function (data) {
+                    const newNote = $('<li data-id="' + data.id + '">' + data.note + '</li>').hide();
                     $('#notesList').append(newNote);
                     newNote.fadeIn(1000);
                     $('#noteInput').val('');
                 },
-                error: function(xhr, status, error) {
+                error: function (xhr, status, error) {
                     console.error("Error in AJAX request:", status, error);
                 }
             });
         }
     }
 
-    $('#notesList').on('click', 'li', function() {
-        if (selectedNote) {
-            selectedNote.removeClass('selected');
-        }
-        selectedNote = $(this).addClass('selected');
-        $('.sidebar').show();
+    $('#notesList').on('click', 'li', function () {
+        selectedNote = $(this);
+        const noteId = selectedNote.data('id');
+        $('.sidebar').show().data('note-id', noteId);
     });
 
-    $('.sidebar button').click(function() {
+    $('.sidebar button#eraseNote').click(function () {
         if (!selectedNote) return;
-
-        let action = $(this).attr('id').replace('Note', '').toLowerCase();
-
-        if (action === 'erase') {
-            let words = selectedNote.text().split(' ');
-            deletedWords.push(words.pop());
-            selectedNote.text(words.join(' ') + ' ');
-            $('#showHiddenWords').show();
-        } else {
-            selectedNote.toggleClass(action);
+    
+        const noteId = $('.sidebar').data('note-id');
+        const words = selectedNote.text().split(' ');
+        const wordToHide = words.pop(); // Remove the last word
+    
+        if (wordToHide) {
+            // AJAX call to remove the word and store it in the hidden words array
+            $.ajax({
+                type: "POST",
+                url: "/hide_word",
+                data: JSON.stringify({ note_id: noteId, word: wordToHide }),
+                contentType: "application/json",
+                dataType: "json",
+                success: function (data) {
+                    // Update the note's content in the UI
+                    selectedNote.text(data.updated_content);
+    
+                    // Show the "Show Hidden Words" button if there are hidden words
+                    if (data.hidden_words && data.hidden_words.length > 0) {
+                        $('#showHiddenWords').show();
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error hiding word:", status, error);
+                }
+            });
+    
+            // Remove the word instance from the DOM
+            selectedNote.text(words.join(' ')); // Update note text
         }
     });
+    
+    
 
-    $('#showHiddenWords').click(function() {
-        if (!selectedNote || deletedWords.length === 0) return;
-
-        let hiddenWord = deletedWords.pop();
-        let currentText = selectedNote.text();
-        selectedNote.text(currentText + hiddenWord);
-        
-        if (deletedWords.length === 0) {
-            $(this).hide();
+    $('#showHiddenWords').click(function () {
+        const noteId = $('.sidebar').data('note-id');
+        if (!noteId) {
+            alert("No note selected.");
+            return;
         }
-    });
-
-    $(document).click(function(event) {
-        if (!$(event.target).closest('.content-area').length) {
-            if (selectedNote) {
-                selectedNote.removeClass('selected');
-                selectedNote = null;
-                $('.sidebar').hide();
+    
+        $.ajax({
+            type: "GET",
+            url: "/get_hidden_words",
+            data: { note_id: noteId },
+            dataType: "json",
+            success: function (data) {
+                if (data.error) {
+                    alert(data.error);
+                    return;
+                }
+    
+                const hiddenWords = data.hidden_words;
+                if (hiddenWords.length === 0) {
+                    alert("No hidden words for this note.");
+                    return;
+                }
+    
+                // Restore words one by one
+                hiddenWords.forEach((word) => {
+                    $.ajax({
+                        type: "POST",
+                        url: "/restore_word",
+                        data: JSON.stringify({ note_id: noteId, word: word }),
+                        contentType: "application/json",
+                        dataType: "json",
+                        success: function (restoreData) {
+                            if (restoreData.error) {
+                                console.error("Error restoring word:", restoreData.error);
+                            } else {
+                                // Update the note content in the UI
+                                selectedNote.text(restoreData.updated_content);
+                            }
+                        },
+                        error: function (xhr, status, error) {
+                            console.error("Error restoring word:", status, error);
+                        }
+                    });
+                });
+    
+                // Hide the button after restoring all words
+                $(this).hide();
+            },
+            error: function (xhr, status, error) {
+                console.error("Error fetching hidden words:", status, error);
             }
-        }
+        });
     });
+    
+    
 });
+
